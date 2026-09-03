@@ -2,7 +2,7 @@
 
 个人私有本地化大模型部署栈：在自己的 GPU/服务器上运行可替换的开源模型，通过局域网提供统一的 OpenAI-compatible API，供其他电脑、脚本、IDE、Codex 或协议适配层调用。
 
-模型不是项目的一部分，而是 `.env` 中的配置项。默认值仅作为 24GB 显存的示例，复制仓库后可以替换为其他 Hugging Face 模型或本地模型目录。
+模型不是项目的一部分，而是 `.env` 中的配置项。当前示例针对 RTX 3090 24GB，使用 Qwen2.5-Coder-32B 的 AWQ 4-bit 量化版本；复制仓库后可以替换为其他 Hugging Face 模型或本地模型目录。
 
 ## 上传到 GitHub
 
@@ -24,7 +24,7 @@ git push -u origin main
 
 ## 推荐模型
 
-默认使用 `Qwen/Qwen3-8B` 作为示例。你可以把 `MODEL_NAME` 改成 Llama、Mistral、DeepSeek、Qwen 或其他 vLLM 支持的模型。模型大小、量化方式、上下文长度需要根据自己的显存重新评估；24GB 显存下建议从 7B/8B 或 4-bit 量化模型开始。
+默认使用 `Qwen/Qwen2.5-Coder-32B-Instruct-AWQ`。你可以把 `MODEL_NAME` 改成 Llama、Mistral、DeepSeek、Qwen 或其他 vLLM 支持的模型。模型大小、量化方式、上下文长度需要根据自己的显存重新评估；24GB 显存建议使用 4-bit 量化模型。
 
 ## 启动
 
@@ -79,5 +79,5 @@ Claude Code 通常期待 Anthropic Messages API，不一定能直接使用 vLLM 
 
 - 显存不足：把 `VLLM_MAX_MODEL_LEN` 降到 4096，或把 `VLLM_MAX_NUM_SEQS` 降到 1/2。
 - 想要更长上下文：先观察 `nvidia-smi`，逐步增加 `VLLM_MAX_MODEL_LEN`，不要同时提高并发。
-- 使用本地模型：把模型放进 `models/`，在 compose 中挂载 `./models:/models:ro`，并将 `MODEL_NAME` 设为容器内路径（如 `/models/Qwen3-8B`）。
+- 使用本地模型：把模型放进 `models/`，在 compose 中挂载 `./models:/models:ro`，并将 `MODEL_NAME` 设为容器内路径（如 `/models/Qwen2.5-Coder-32B`）。
 - 生产环境：不要把 8000 端口暴露到公网；需要公网访问时加 VPN、反向代理和 TLS。
