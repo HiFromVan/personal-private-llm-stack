@@ -1,0 +1,36 @@
+services:
+  vllm:
+    image: vllm/vllm-openai:latest
+    container_name: private-llm-vllm
+    restart: unless-stopped
+    gpus: all
+    ipc: host
+    shm_size: "8gb"
+    env_file:
+      - .env
+    environment:
+      HF_TOKEN: ${HF_TOKEN:-}
+      HUGGING_FACE_HUB_TOKEN: ${HF_TOKEN:-}
+    ports:
+      # 若只允许局域网访问，可改为 "192.168.1.10:8000:8000"。
+      - "8000:8000"
+    volumes:
+      - ./data/huggingface:/root/.cache/huggingface
+      # 使用本地模型目录时，设置 MODEL_NAME=/models/<目录名> 并取消下一行注释。
+      # - ./models:/models:ro
+    command:
+      - ${MODEL_NAME}
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8000"
+      - --api-key
+      - ${VLLM_API_KEY}
+      - --dtype
+      - ${VLLM_DTYPE:-auto}
+      - --gpu-memory-utilization
+      - "${VLLM_GPU_MEMORY_UTILIZATION:-0.90}"
+      - --max-model-len
+      - "${VLLM_MAX_MODEL_LEN:-8192}"
+      - --max-num-seqs
+      - "${VLLM_MAX_NUM_SEQS:-4}"
